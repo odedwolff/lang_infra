@@ -22,4 +22,6 @@ async function translateText() {
   });
 }
 
-translateText();
+
+
+//translateText();
