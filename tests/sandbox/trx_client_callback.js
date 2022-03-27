@@ -8,8 +8,16 @@
  
   // TODO(developer) Uncomment the following lines before running the sample.
   
-  const text = 'perché';
+  //const text = 'perché';
+  const text = 'a';
   const target = 'en';
+
+  const source = 'it';
+
+  const options = {
+    from:'it', 
+    to:'en'
+  }
  
  
  
@@ -29,8 +37,12 @@ function translateText() {
     // Translates the text into the target language. text can be a string for
     // translating a single piece of text, or an array of strings for translating
     // multiple texts.
-   let translations =  translate.translate(text, target);
-   //translations = Array.isArray(translations) ? translations : [translations];
+
+
+    //let translations =  translate.translate(text, target);
+  // let translations =  translate.translate(text, source, target);
+   let translations =  translate.translate(text, options);
+
 
    translations.then((val)=>{
        console.log(val);
