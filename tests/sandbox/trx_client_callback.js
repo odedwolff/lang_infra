@@ -5,8 +5,6 @@
  // Creates a client
  const translate = new Translate();
  
- 
-  // TODO(developer) Uncomment the following lines before running the sample.
   
   //const text = 'perché';
   const text = 'a';
@@ -38,9 +36,6 @@ function translateText() {
     // translating a single piece of text, or an array of strings for translating
     // multiple texts.
 
-
-    //let translations =  translate.translate(text, target);
-  // let translations =  translate.translate(text, source, target);
    let translations =  translate.translate(text, options);
 
 
@@ -48,10 +43,6 @@ function translateText() {
        console.log(val);
        console.log(val[1].data);
    });
-   /* console.log('Translations');
-   translations.forEach((translation, i) => {
-     console.log(`${text[i]} = (${target}) ${translation}`);
-   }); */
  }
 
  translateText();
