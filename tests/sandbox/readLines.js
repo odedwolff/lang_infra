@@ -1,5 +1,5 @@
 
-
+//db = require('./db.js');
 
 const readline = require('readline');
 const fs = require('fs');
@@ -13,24 +13,31 @@ var linesCounter = 0;
 
 
 
-/* const readInterface = readline.createInterface({
-    input: fs.createReadStream(PATH),
-    output: process.stdout,
-    console: false
-});
- */
-
-lineReader.eachLine(PATH, function(line) {
-    processLine(line);
-    //console.log(line);
-    linesCounter++;
-    if(linesCounter > LINES_LIMIT){
-        return false;
-    }
-});
+exports.go = function() {
+    lineReader.eachLine(PATH, function (line) {
+        processLine(line);
+        //console.log(line);
+        linesCounter++;
+        if (linesCounter > LINES_LIMIT) {
+            return false;
+        }
+    });
+}
 
 
 function processLine(line){
     var split = line.split(/\s+|\t+/);
     console.log(`length: ${split.length}  arr:${split}  ` );
 }
+
+
+exports.go2 = (db) => {
+    console.log(db);
+}
+
+exports.go3 = (func) =>{
+    func('word23', 567, 'trx23');
+}
+
+
+//module.exports.go();
