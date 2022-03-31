@@ -5,6 +5,7 @@ const readline = require('readline');
 const fs = require('fs');
 const lineReader = require('line-reader');
 const trx = require('./trx_client_callback.js');
+db = require('./db.js');
 
 
 //const PATH = "C:/projects/software/data/languages/italain/sorted.it.word.unigrams.txt";
@@ -14,9 +15,9 @@ var linesCounter = 0;
 
 
 
-exports.go = function(func) {
+exports.go = function(con) {
     lineReader.eachLine(PATH, function (line) {
-        processLine(line);
+        processLine(line, con);
         //console.log(line);
         linesCounter++;
         if (linesCounter > LINES_LIMIT) {
@@ -26,7 +27,7 @@ exports.go = function(func) {
 }
 
 
-function processLine(line){
+function processLine(line, con){
     var split = line.split(/\s+|\t+/);
     
     //console.log(`length: ${split.length}  arr:${split}  ` );
@@ -34,7 +35,11 @@ function processLine(line){
     const count = split[0];
     const word = split[1];
     console.log(`source word:${word}`);
-    trx.translateText (word, 'it', 'en');
+    trx.translateText2(word, 'it', 'en').
+        then((res)=>{
+            console.log(`${word} -> ${res}`);
+            db.saveLine(con, word, count, res);
+        });
 }
 
 

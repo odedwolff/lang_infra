@@ -32,9 +32,7 @@ function translateText22() {
 
 
 exports.translateText = function(text, from, to) {
-    // Translates the text into the target language. text can be a string for
-    // translating a single piece of text, or an array of strings for translating
-    // multiple texts.
+    
     const options = {
       from:from, 
       to:to
@@ -44,10 +42,30 @@ exports.translateText = function(text, from, to) {
 
 
    translations.then((val)=>{
-      // console.log(val);
-      // console.log(val[1].data);
-      console.log(`${text} -> ${val[0]}`);
+      
+      //console.log(`${text} -> ${val[0]}`);
    });
  }
+
+
+
+exports.translateText2 = function (text, from, to) {
+  return new Promise((res) => {
+    const options = {
+      from: from,
+      to: to
+    }
+
+    let translations = translate.translate(text, options);
+
+
+    translations.then((val) => {
+      //console.log(`${text} -> ${val[0]}`);
+      res(val[0]);
+    });
+  }
+
+  );
+}
 
  //translateText();
