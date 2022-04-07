@@ -8,10 +8,13 @@ const lineReader = require('line-reader');
 const fs = require('fs');
 const readline = require('readline');
 const { EOF } = require('dns');
+const trx = require('./trx_client_callback.js');
 
 
 
 
+
+//const IN_FILE = "C:/projects/software/data/languages/italain/words.it.raw.test.txt";
 const IN_FILE = "C:/projects/software/data/languages/italain/words.it.raw.test.txt";
 
 const OUT_FILE = "path";
@@ -45,7 +48,7 @@ async function processLineByLine() {
 
 
 
-function readLines2(){
+function readLines2(con){
     var rd = readline.createInterface({
         input: fs.createReadStream(IN_FILE),
         output: process.stdout,
@@ -58,18 +61,25 @@ function readLines2(){
     }).on('close', function(line) {
         // EOF
         console.log("EOF");
-        doneReadingLines();
+        doneReadingLines(con);
     });
 
 }
 
-function doneReadingLines(){
+function doneReadingLines(con){
     console.log(`words= ${JSON.stringify(words)}`);
     console.log("now loop");
     for (var word in words) {
         // check if the property/key is defined in the object itself, not in parent
-        if (words.hasOwnProperty(word)) {           
-            console.log(word, words[word]);
+        if (words.hasOwnProperty(word)) {  
+            count =  words[word];        
+            console.log(word, count);
+            trx.translateText2(word, 'it', 'en').
+            then(((word, count, res)=>{
+                console.log(`${word} -> ${res}`);
+                db.saveLine(con, word, count, res);
+            }).bind(null, word, count)
+            );
         }
     }
 }
@@ -77,17 +87,17 @@ function doneReadingLines(){
 
 
 
-function go(){
+exports.go = function(con){
     /* processLineByLine();
     console.log(`words=` + words); */
-    readLines2();
+    readLines2(con);
 }
 
-exports.go = function() {
+/* exports.go = function() {
     lineReader.eachLine(IN_FILE, function (line) {
         processLine(line);
     });
-}
+} */
 
 
 
@@ -141,6 +151,6 @@ function processLineREFERENCE(line, con){
 }
 
 
-go();
+//go();
 
 
