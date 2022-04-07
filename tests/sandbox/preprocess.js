@@ -15,7 +15,7 @@ const trx = require('./trx_client_callback.js');
 
 
 //const IN_FILE = "C:/projects/software/data/languages/italain/words.it.raw.test.txt";
-const IN_FILE = "C:/projects/software/data/languages/italain/words.it.raw.test.txt";
+const IN_FILE = "C:/projects/software/data/languages/italain/1000_records_test.txt";
 
 const OUT_FILE = "path";
 
@@ -24,6 +24,9 @@ const words = {};
 const fakeDict = {};
 const fakeInt = 5;
 
+const TRSH_MIN_COUNT = 0;
+const FILE_IS_SORTED_DESC = true;
+var halt = false; 
 
 
 
@@ -67,8 +70,8 @@ function readLines2(con){
 }
 
 function doneReadingLines(con){
-    console.log(`words= ${JSON.stringify(words)}`);
-    console.log("now loop");
+    //console.log(`words= ${JSON.stringify(words)}`);
+    console.log("done reading, next");
     for (var word in words) {
         // check if the property/key is defined in the object itself, not in parent
         if (words.hasOwnProperty(word)) {  
@@ -104,21 +107,37 @@ exports.go = function(con){
 
 
 function isWord(wordCandidate){
+    if (!isWord){
+        return false;
+    }
     return true;
 }
 
 function cleanWord(word){
-    console.log(`cleanWord input:${word}`);
+    //console.log(`cleanWord input:${word}`);
     const out = word.replace(/[^0-9a-z]/gi, '');
-    console.log(`cleanWord output:${out}`);
+    //console.log(`cleanWord output:${out}`);
     return out;
 }
 
 
 function processLine(line){
+    console.log(`line:${line}`);
+    if(halt){
+        console.log("halted");
+        return;
+    }
     var split = line.split(/\s+|\t+/);
     var count = split[0];
     count = parseInt(count, 10);
+    if(count < TRSH_MIN_COUNT){
+        //if threshold is reached and file is sorted, from this point onward all lines can be dropped 
+        if(FILE_IS_SORTED_DESC){
+            halt = true;
+        }
+        console.log("thresholdCrossed");
+        return; 
+    }
     var word = split[1];
     if(!isWord(word)){
         console.log(`dropped word candidate ${word}`);
