@@ -65,6 +65,13 @@ function readLines2(){
 
 function doneReadingLines(){
     console.log(`words= ${JSON.stringify(words)}`);
+    console.log("now loop");
+    for (var word in words) {
+        // check if the property/key is defined in the object itself, not in parent
+        if (words.hasOwnProperty(word)) {           
+            console.log(word, words[word]);
+        }
+    }
 }
 
 
@@ -100,7 +107,8 @@ function cleanWord(word){
 
 function processLine(line){
     var split = line.split(/\s+|\t+/);
-    const count = split[0];
+    var count = split[0];
+    count = parseInt(count, 10);
     var word = split[1];
     if(!isWord(word)){
         console.log(`dropped word candidate ${word}`);
@@ -109,11 +117,11 @@ function processLine(line){
     word = cleanWord(word);
     word = word.toLowerCase();
     if(words[word]){
-        words[word]++;
+        words[word]+=count;
     }else{
-        words[word]=1;
+        words[word]=count;
     }
-    
+
 }
 
 
