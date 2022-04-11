@@ -15,7 +15,9 @@ const trx = require('./trx_client_callback.js');
 
 
 //const IN_FILE = "C:/projects/software/data/languages/italain/words.it.raw.test.txt";
-const IN_FILE = "C:/projects/software/data/languages/italain/1000_records_test.txt";
+//const IN_FILE = "C:/projects/software/data/languages/italain/1000_records_test.txt";
+const IN_FILE = "C:/projects/software/data/languages/italain/sorted.it.word.unigrams.txt";
+
 
 const OUT_FILE = "path";
 
@@ -26,7 +28,10 @@ const fakeInt = 5;
 
 const TRSH_MIN_COUNT = 0;
 const FILE_IS_SORTED_DESC = true;
+const MAX_LINE=100;
 var halt = false; 
+var linesReadCount = 0; 
+var rd;
 
 
 
@@ -52,7 +57,7 @@ async function processLineByLine() {
 
 
 function readLines2(con){
-    var rd = readline.createInterface({
+    rd = readline.createInterface({
         input: fs.createReadStream(IN_FILE),
         output: process.stdout,
         console: false
@@ -126,6 +131,11 @@ function cleanWord(word){
 
 
 function processLine(line){
+    linesReadCount++;
+    if(linesReadCount > MAX_LINE){
+        console.log("max lines processed, terminating input");
+        rd.close();
+    }
     console.log(`line:${line}`);
     if(halt){
         console.log("halted");
