@@ -106,12 +106,16 @@ exports.go = function(con){
 
 
 
+
 function isWord(wordCandidate){
-    if (!isWord){
+    if ((!wordCandidate) || wordCandidate.length == 0 || (!isNaN(wordCandidate[0]))){
         return false;
     }
     return true;
 }
+
+exports.expIsWord = isWord;
+
 
 function cleanWord(word){
     //console.log(`cleanWord input:${word}`);
