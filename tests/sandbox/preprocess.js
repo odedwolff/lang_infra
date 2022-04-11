@@ -26,11 +26,10 @@ const words = {};
 const fakeDict = {};
 const fakeInt = 5;
 
-const TRSH_MIN_COUNT = 0;
-const FILE_IS_SORTED_DESC = true;
 const MAX_LINE=100;
 var halt = false; 
-var linesReadCount = 0; 
+var linesReadCount = 0;
+//file interface  
 var rd;
 
 
@@ -96,18 +95,8 @@ function doneReadingLines(con){
 
 
 exports.go = function(con){
-    /* processLineByLine();
-    console.log(`words=` + words); */
     readLines2(con);
 }
-
-/* exports.go = function() {
-    lineReader.eachLine(IN_FILE, function (line) {
-        processLine(line);
-    });
-} */
-
-
 
 
 
@@ -137,21 +126,9 @@ function processLine(line){
         rd.close();
     }
     console.log(`line:${line}`);
-    if(halt){
-        console.log("halted");
-        return;
-    }
     var split = line.split(/\s+|\t+/);
     var count = split[0];
     count = parseInt(count, 10);
-    if(count < TRSH_MIN_COUNT){
-        //if threshold is reached and file is sorted, from this point onward all lines can be dropped 
-        if(FILE_IS_SORTED_DESC){
-            halt = true;
-        }
-        console.log("thresholdCrossed");
-        return; 
-    }
     var word = split[1];
     if(!isWord(word)){
         console.log(`dropped word candidate ${word}`);
