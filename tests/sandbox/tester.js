@@ -16,6 +16,26 @@ function testIsWors(){
 }
 
 
+/**
+ * {k1:v1, k2:v2} => []
+ * 
+ */
+function convertDictToList(dict) {
 
 
-testIsWors();
+    const out = [];
+    for (key in dict) {
+        out.push([key, dict[key]]);
+    }
+    return out;
+}
+
+function testConvert(){
+    const dict = {k1:"v1", k2:"v2", k3:"v3"};
+    console.log(dict);
+    const arr = convertDictToList(dict);
+    console.log(arr);
+}
+
+//testIsWors();
+testConvert();

@@ -33,6 +33,12 @@ var linesReadCount = 0;
 var rd;
 
 
+const keys =[];
+const BATCH_SIZE = 10;
+var keysPntr = 0; 
+
+
+
 
 async function processLineByLine() {
     const fileStream = fs.createReadStream(IN_FILE);
@@ -68,7 +74,8 @@ function readLines2(con){
     }).on('close', function(line) {
         // EOF
         console.log("EOF");
-        doneReadingLines(con);
+        //doneReadingLines(con);
+        wordsMapReady();
     });
 
 }
@@ -90,6 +97,49 @@ function doneReadingLines(con){
         }
     }
 }
+
+
+function wordsMapReady(){
+    arr = convertDictToList(words);
+
+}
+
+
+function processBatches(con){
+    //console.log(`words= ${JSON.stringify(words)}`);
+    console.log("done reading, next");
+    for (var word in words) {
+        // check if the property/key is defined in the object itself, not in parent
+        if (words.hasOwnProperty(word)) {  
+            count =  words[word];        
+            console.log(word, count);
+            trx.translateText2(word, 'it', 'en').
+            then(((word, count, res)=>{
+                console.log(`${word} -> ${res}`);
+                db.saveLine(con, word, count, res);
+            }).bind(null, word, count)
+            );
+        }
+    }
+}
+
+function convertDictToList(dict) {
+
+
+    const out = [];
+    for (key in dict) {
+        out.push([key, dict[key]]);
+    }
+    return out;
+}
+
+function testConvert(){
+    const dict = {k1:"v1", k2:"v2", k3:"v3"};
+    console.log(dict);
+    const arr = convertDictToList(dict);
+    console.log(arr);
+}
+
 
 
 
