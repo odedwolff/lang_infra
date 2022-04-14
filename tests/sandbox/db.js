@@ -68,11 +68,26 @@ function save(con){
 }
 
 /**con is a connection, assumed to be open */
-exports.saveLine = function(con, word, instances_cnt, translation){
+exports.saveLineOLD = function(con, word, instances_cnt, translation){
     var sql = `insert into test_schema_17_oct.words_stats_fake(word, instances_cnt, translation) values("${word}", "${instances_cnt}", "${translation}")`;
     con.query(sql, function (err, result) {
         if (err) throw err;
         console.log("1 record inserted");
+    });
+}
+
+/**con is a connection, assumed to be open */
+exports.saveLine = function(con, word, instances_cnt, translation){
+    return new Promise((res, rej) => {
+        var sql = `insert into test_schema_17_oct.words_stats_fake(word, instances_cnt, translation) values("${word}", "${instances_cnt}", "${translation}")`;
+        con.query(sql, function (err, result) {
+            if (err) rej(err);
+            else {
+                console.log("1 record inserted");
+                res(result);
+            }
+
+        });
     });
 }
 

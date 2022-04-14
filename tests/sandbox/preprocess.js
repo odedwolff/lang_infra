@@ -26,7 +26,7 @@ const words = {};
 const fakeDict = {};
 const fakeInt = 5;
 
-const MAX_LINE=100;
+const MAX_LINE=10;
 var halt = false; 
 var linesReadCount = 0;
 //file interface  
@@ -34,8 +34,12 @@ var rd;
 
 
 const keys =[];
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 5;
 var keysPntr = 0; 
+var reqSent = 0;
+var reqComplete = 0; 
+var wordsArr;
+var con; 
 
 
 
@@ -75,11 +79,12 @@ function readLines2(con){
         // EOF
         console.log("EOF");
         //doneReadingLines(con);
-        wordsMapReady();
+        wordsMapReady(con);
     });
 
 }
 
+/* 
 function doneReadingLines(con){
     //console.log(`words= ${JSON.stringify(words)}`);
     console.log("done reading, next");
@@ -98,14 +103,47 @@ function doneReadingLines(con){
     }
 }
 
+ */
+function wordsMapReady(con){
+    wordsArr = convertDictToList(words);
+    processNextBatch(con);
+}
 
-function wordsMapReady(){
-    arr = convertDictToList(words);
+function processNextBatch(con){
+    if(keysPntr >= wordsArr.length){
+        return;
+    }
+    const lastIdxOfBatch =  keysPntr + BATCH_SIZE;
+    while (keysPntr <= lastIdxOfBatch){
+        var entry = wordsArr[keysPntr];
+        var word;
+        var count;
+        if(entry){
+             word = entry[0];
+             count = entry[1];
+        }else{
+            keysPntr++;
+            continue;
+        }
+        trx.translateText2(word, 'it', 'en')
+        .then((data)=>{console.log(`dont trx---, data=${data}`)})
+        .then(((word, count, res)=>{
+            console.log(`${word} -> ${res}`);
+            db.saveLine(con, word, count, res)
+            .then(lineSaved);
+        }).bind(null, word, count)
+        );
+        keysPntr++;
+    }
+    console.log("Batch complete");
+}
 
+function lineSaved(data){
+    console.log("lineSaved@@@@");
 }
 
 
-function processBatches(con){
+function processBatchesREFERENCE(con){
     //console.log(`words= ${JSON.stringify(words)}`);
     console.log("done reading, next");
     for (var word in words) {
@@ -144,7 +182,7 @@ function testConvert(){
 
 
 
-exports.go = function(con){
+exports.go = function(con){ 
     readLines2(con);
 }
 
@@ -152,7 +190,7 @@ exports.go = function(con){
 
 
 function isWord(wordCandidate){
-    if ((!wordCandidate) || wordCandidate.length == 0 || (!isNaN(wordCandidate[0]))){
+    if ((!wordCandidate) || wordCandidate.length == 0 || !/[a-zA-Z]/.test(wordCandidate[0])){
         return false;
     }
     return true;

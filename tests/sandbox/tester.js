@@ -1,10 +1,11 @@
+const translateText  = require('./trx_client_callback.js');
 
-pproc = require('./preprocess.js');
+const pproc = require('./preprocess.js');
  
 
 
 function testIsWors(){
-    const wordCandidates = ["a", "word", "d'accrodo", "45", "", undefined];
+    const wordCandidates = ['',"a", "word", "d'accrodo", "45", "", undefined, " "];
     var candidate; 
     var isWord;
     for (var i  = 0 ; i < wordCandidates.length ; i++){
@@ -12,7 +13,6 @@ function testIsWors(){
         isWord = pproc.expIsWord(candidate)
         console.log(`${candidate} is ${isWord ?"":"not"} a word`);
     }
-    
 }
 
 
@@ -37,5 +37,22 @@ function testConvert(){
     console.log(arr);
 }
 
+
+function testTrx(){
+    word= "mio";
+    count =43423;
+    translateText.translateText2(word,'it', 'en')
+    .then((data)=>{console.log("dont trx---")});
+    /* .then(((word, count, res)=>{
+         console.log(`then then then ${word} -> ${res}`);
+    }).bind(null, word, count) 
+    );*/
+
+}
+
+
+
+
 //testIsWors();
-testConvert();
+//testConvert();
+testTrx();
