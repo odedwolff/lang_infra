@@ -78,6 +78,7 @@ exports.saveLineOLD = function(con, word, instances_cnt, translation){
 
 /**con is a connection, assumed to be open */
 exports.saveLine = function(con, word, instances_cnt, translation){
+    //console.log(`entering saveLine(), args = ${[con, word, instances_cnt, translation]}`);
     return new Promise((res, rej) => {
         var sql = `insert into test_schema_17_oct.words_stats_fake(word, instances_cnt, translation) values("${word}", "${instances_cnt}", "${translation}")`;
         con.query(sql, function (err, result) {

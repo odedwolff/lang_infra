@@ -26,20 +26,22 @@ const words = {};
 const fakeDict = {};
 const fakeInt = 5;
 
-const MAX_LINE=10;
+const MAX_LINE=30;
 var halt = false; 
 var linesReadCount = 0;
 //file interface  
 var rd;
+var con; 
 
 
 const keys =[];
 const BATCH_SIZE = 5;
 var keysPntr = 0; 
 var reqSent = 0;
-var reqComplete = 0; 
+var nmReqComplete = 0; 
 var wordsArr;
-var con; 
+var _con; 
+var currentBatchBegin = 0;
 
 
 
@@ -65,7 +67,7 @@ async function processLineByLine() {
 
 
 
-function readLines2(con){
+function readLines2(){
     rd = readline.createInterface({
         input: fs.createReadStream(IN_FILE),
         output: process.stdout,
@@ -79,7 +81,7 @@ function readLines2(con){
         // EOF
         console.log("EOF");
         //doneReadingLines(con);
-        wordsMapReady(con);
+        wordsMapReady();
     });
 
 }
@@ -104,45 +106,55 @@ function doneReadingLines(con){
 }
 
  */
-function wordsMapReady(con){
+function wordsMapReady(){
     wordsArr = convertDictToList(words);
-    processNextBatch(con);
+    processNextBatch();
 }
 
-function processNextBatch(con){
+function processNextBatch(){
     if(keysPntr >= wordsArr.length){
         return;
     }
-    const lastIdxOfBatch =  keysPntr + BATCH_SIZE;
+    const lastIdxOfBatch =  currentBatchBegin + BATCH_SIZE;
     while (keysPntr <= lastIdxOfBatch){
+        console.log(`keys pointer = ${keysPntr}, currentBatchBegin = ${currentBatchBegin} last index of batch=${lastIdxOfBatch}`);
         var entry = wordsArr[keysPntr];
         var word;
         var count;
+        //if entry empty, skip and count as complete
         if(entry){
              word = entry[0];
              count = entry[1];
         }else{
             keysPntr++;
+            nmReqComplete++;
             continue;
         }
         trx.translateText2(word, 'it', 'en')
-        .then((data)=>{console.log(`dont trx---, data=${data}`)})
+        //.then((data)=>{console.log(`dont trx---, data=${data}`)})
         .then(((word, count, res)=>{
-            console.log(`${word} -> ${res}`);
-            db.saveLine(con, word, count, res)
+            console.log(`translated: ${word} -> ${res}`);
+            db.saveLine(_con, word, count, res)
             .then(lineSaved);
         }).bind(null, word, count)
         );
         keysPntr++;
     }
-    console.log("Batch complete");
+    console.log("Batch complete Sending >>>>>");
 }
 
 function lineSaved(data){
-    console.log("lineSaved@@@@");
+    nmReqComplete++;
+    const batchTarget = currentBatchBegin + BATCH_SIZE - 1; 
+    console.log(`lineSaved, nextBatchTarget= ${batchTarget}, reqComplete=${nmReqComplete}`);
+    if(nmReqComplete == batchTarget){
+        console.log("Batch complete Recieving   <<<<");
+        currentBatchBegin += BATCH_SIZE;
+        processNextBatch();
+    }
 }
 
-
+/* 
 function processBatchesREFERENCE(con){
     //console.log(`words= ${JSON.stringify(words)}`);
     console.log("done reading, next");
@@ -159,7 +171,7 @@ function processBatchesREFERENCE(con){
             );
         }
     }
-}
+} */
 
 function convertDictToList(dict) {
 
@@ -183,7 +195,8 @@ function testConvert(){
 
 
 exports.go = function(con){ 
-    readLines2(con);
+    _con = con; 
+    readLines2();
 }
 
 

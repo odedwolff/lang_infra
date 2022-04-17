@@ -58,7 +58,7 @@ exports.translateText2 = function (text, from, to) {
     console.log(`sending trnaslation, text = ${text}, options: ${JSON.stringify(options)}`);
     let translations = translate.translate(text, options);
     translations.then((val) => {
-      console.log(`${text} -> ${val[0]}`);
+      //console.log(`${text} -> ${val[0]}`);
       res(val[0]);
     },
       (val) => { 
