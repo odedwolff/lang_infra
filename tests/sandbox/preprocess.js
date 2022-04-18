@@ -48,23 +48,6 @@ var lastIdxOfBatch;
 
 
 
-async function processLineByLine() {
-    const fileStream = fs.createReadStream(IN_FILE);
-    const rl = readline.createInterface({
-      input: fileStream,
-      crlfDelay: Infinity
-    });
-    // Note: we use the crlfDelay option to recognize all instances of CR LF
-    // ('\r\n') in input.txt as a single line break.
-  
-    for await (const line of rl) {
-      // Each line in input.txt will be successively available here as `line`.
-      console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&");
-      console.log(`sending line to processing: ${line}`);
-      processLine(line);
-    }
-
-  }
 
 
 
@@ -96,11 +79,13 @@ function wordsMapReady(){
 }
 
 function processNextBatch(){
-    if(keysPntr >= wordsArr.length){
-        return;
-    }
+
     lastIdxOfBatch =  currentBatchBegin + BATCH_SIZE - 1;
     while (keysPntr <= lastIdxOfBatch){
+        if(keysPntr == wordsArr.length){
+            console.log("--INPUT ARRAY CONSUMED--")
+            return;
+        }
         console.log(`keys pointer = ${keysPntr}, currentBatchBegin = ${currentBatchBegin} last index of batch=${lastIdxOfBatch}`);
         var entry = wordsArr[keysPntr];
         var word;
@@ -112,6 +97,7 @@ function processNextBatch(){
         }else{
             keysPntr++;
             nmReqComplete++;
+            console.log("EMPTY ENTRY");
             continue;
         }
         trx.translateText2(word, 'it', 'en')
@@ -129,6 +115,11 @@ function processNextBatch(){
 
 function lineSaved(data){
     nmReqComplete++;
+    if(nmReqComplete == wordsArr.length){
+        console.log("--ALL REQUESTS COMPLETED--");
+        _con.end();
+        return;
+    }
     //const batchTarget = currentBatchBegin + BATCH_SIZE - 1; 
     console.log(`lineSaved, reqComplete=${nmReqComplete}`);
     if(nmReqComplete == lastIdxOfBatch + 1){
@@ -212,20 +203,6 @@ function processLine(line){
 }
 
 
-function processLineREFERENCE(line, con){
-    var split = line.split(/\s+|\t+/);
-    
-    //console.log(`length: ${split.length}  arr:${split}  ` );
-    //console.log(`mock sending to translate word ${split[1]}`);
-    const count = split[0];
-    const word = split[1];
-    console.log(`source word:${word}`);
-    trx.translateText2(word, 'it', 'en').
-        then((res)=>{
-            console.log(`${word} -> ${res}`);
-            db.saveLine(con, word, count, res);
-        });
-}
 
 
 //go();
