@@ -9,6 +9,7 @@ const fs = require('fs');
 const readline = require('readline');
 const { EOF } = require('dns');
 const trx = require('./trx_client_callback.js');
+const { LATIN1_SPANISH_CI, LATIN7_ESTONIAN_CS } = require('mysql/lib/protocol/constants/charsets');
 
 
 
@@ -42,6 +43,7 @@ var nmReqComplete = 0;
 var wordsArr;
 var _con; 
 var currentBatchBegin = 0;
+var lastIdxOfBatch;
 
 
 
@@ -86,26 +88,8 @@ function readLines2(){
 
 }
 
-/* 
-function doneReadingLines(con){
-    //console.log(`words= ${JSON.stringify(words)}`);
-    console.log("done reading, next");
-    for (var word in words) {
-        // check if the property/key is defined in the object itself, not in parent
-        if (words.hasOwnProperty(word)) {  
-            count =  words[word];        
-            console.log(word, count);
-            trx.translateText2(word, 'it', 'en').
-            then(((word, count, res)=>{
-                console.log(`${word} -> ${res}`);
-                db.saveLine(con, word, count, res);
-            }).bind(null, word, count)
-            );
-        }
-    }
-}
 
- */
+
 function wordsMapReady(){
     wordsArr = convertDictToList(words);
     processNextBatch();
@@ -115,13 +99,13 @@ function processNextBatch(){
     if(keysPntr >= wordsArr.length){
         return;
     }
-    const lastIdxOfBatch =  currentBatchBegin + BATCH_SIZE;
+    lastIdxOfBatch =  currentBatchBegin + BATCH_SIZE - 1;
     while (keysPntr <= lastIdxOfBatch){
         console.log(`keys pointer = ${keysPntr}, currentBatchBegin = ${currentBatchBegin} last index of batch=${lastIdxOfBatch}`);
         var entry = wordsArr[keysPntr];
         var word;
         var count;
-        //if entry empty, skip and count as complete
+        //if entry empty, skip and count as complete (probably a bug if happens, should be filtered sooner)
         if(entry){
              word = entry[0];
              count = entry[1];
@@ -140,38 +124,20 @@ function processNextBatch(){
         );
         keysPntr++;
     }
-    console.log("Batch complete Sending >>>>>");
+    console.log("Batch complete Sending >>>>>\n");
 }
 
 function lineSaved(data){
     nmReqComplete++;
-    const batchTarget = currentBatchBegin + BATCH_SIZE - 1; 
-    console.log(`lineSaved, nextBatchTarget= ${batchTarget}, reqComplete=${nmReqComplete}`);
-    if(nmReqComplete == batchTarget){
-        console.log("Batch complete Recieving   <<<<");
+    //const batchTarget = currentBatchBegin + BATCH_SIZE - 1; 
+    console.log(`lineSaved, reqComplete=${nmReqComplete}`);
+    if(nmReqComplete == lastIdxOfBatch + 1){
+        console.log("Batch complete Recieving   <<<<\n\n\n");
         currentBatchBegin += BATCH_SIZE;
         processNextBatch();
     }
 }
 
-/* 
-function processBatchesREFERENCE(con){
-    //console.log(`words= ${JSON.stringify(words)}`);
-    console.log("done reading, next");
-    for (var word in words) {
-        // check if the property/key is defined in the object itself, not in parent
-        if (words.hasOwnProperty(word)) {  
-            count =  words[word];        
-            console.log(word, count);
-            trx.translateText2(word, 'it', 'en').
-            then(((word, count, res)=>{
-                console.log(`${word} -> ${res}`);
-                db.saveLine(con, word, count, res);
-            }).bind(null, word, count)
-            );
-        }
-    }
-} */
 
 function convertDictToList(dict) {
 
