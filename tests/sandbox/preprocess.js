@@ -27,7 +27,7 @@ const words = {};
 const fakeDict = {};
 const fakeInt = 5;
 
-const MAX_LINE=30;
+const MAX_LINE=10000;
 var halt = false; 
 var linesReadCount = 0;
 //file interface  
@@ -36,7 +36,7 @@ var con;
 
 
 const keys =[];
-const BATCH_SIZE = 5;
+const BATCH_SIZE = 20;
 var keysPntr = 0; 
 var reqSent = 0;
 var nmReqComplete = 0; 
